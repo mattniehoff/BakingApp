@@ -1,11 +1,10 @@
 package com.mattniehoff.bakingapp.activities;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 
 import com.mattniehoff.bakingapp.R;
 import com.mattniehoff.bakingapp.adapters.RecipeListAdapter;
@@ -81,6 +80,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onListItemClick(RecipesResponse recipesResponse) {
         // TODO: Open Start RecipeActivity
-
+        Intent intent = new Intent(this, RecipeActivity.class);
+        intent.putExtra(RecipeActivity.RECIPE_EXTRA, recipesResponse);
+        startActivity(intent);
     }
 }
