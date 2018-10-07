@@ -12,6 +12,7 @@ import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 
 import com.mattniehoff.bakingapp.R;
+import com.mattniehoff.bakingapp.fragments.StepDetailFragment;
 
 /**
  * An activity representing a single Step detail screen. This

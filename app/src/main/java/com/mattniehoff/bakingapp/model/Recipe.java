@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.Parcelable.Creator;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class RecipesResponse implements Parcelable
+public class Recipe implements Parcelable
 {
 
     @SerializedName("id")
@@ -29,24 +29,24 @@ public class RecipesResponse implements Parcelable
     @SerializedName("image")
     @Expose
     private String image;
-    public final static Parcelable.Creator<RecipesResponse> CREATOR = new Creator<RecipesResponse>() {
+    public final static Parcelable.Creator<Recipe> CREATOR = new Creator<Recipe>() {
 
 
         @SuppressWarnings({
                 "unchecked"
         })
-        public RecipesResponse createFromParcel(Parcel in) {
-            return new RecipesResponse(in);
+        public Recipe createFromParcel(Parcel in) {
+            return new Recipe(in);
         }
 
-        public RecipesResponse[] newArray(int size) {
-            return (new RecipesResponse[size]);
+        public Recipe[] newArray(int size) {
+            return (new Recipe[size]);
         }
 
     }
             ;
 
-    protected RecipesResponse(Parcel in) {
+    protected Recipe(Parcel in) {
         this.id = ((Integer) in.readValue((Integer.class.getClassLoader())));
         this.name = ((String) in.readValue((String.class.getClassLoader())));
         in.readList(this.ingredients, (com.mattniehoff.bakingapp.model.Ingredient.class.getClassLoader()));
@@ -59,7 +59,7 @@ public class RecipesResponse implements Parcelable
      * No args constructor for use in serialization
      *
      */
-    public RecipesResponse() {
+    public Recipe() {
     }
 
     /**
@@ -71,7 +71,7 @@ public class RecipesResponse implements Parcelable
      * @param image
      * @param steps
      */
-    public RecipesResponse(Integer id, String name, List<Ingredient> ingredients, List<Step> steps, Integer servings, String image) {
+    public Recipe(Integer id, String name, List<Ingredient> ingredients, List<Step> steps, Integer servings, String image) {
         super();
         this.id = id;
         this.name = name;

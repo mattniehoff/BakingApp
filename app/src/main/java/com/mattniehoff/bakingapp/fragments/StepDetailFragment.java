@@ -1,4 +1,4 @@
-package com.mattniehoff.bakingapp.activities;
+package com.mattniehoff.bakingapp.fragments;
 
 import android.app.Activity;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.mattniehoff.bakingapp.R;
+import com.mattniehoff.bakingapp.activities.RecipeActivity;
+import com.mattniehoff.bakingapp.activities.StepDetailActivity;
 import com.mattniehoff.bakingapp.activities.dummy.DummyContent;
 
 /**

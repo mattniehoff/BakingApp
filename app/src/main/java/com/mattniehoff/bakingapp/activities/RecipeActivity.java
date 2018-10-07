@@ -17,7 +17,8 @@ import android.widget.TextView;
 import com.mattniehoff.bakingapp.R;
 
 import com.mattniehoff.bakingapp.activities.dummy.DummyContent;
-import com.mattniehoff.bakingapp.model.RecipesResponse;
+import com.mattniehoff.bakingapp.fragments.StepDetailFragment;
+import com.mattniehoff.bakingapp.model.Recipe;
 
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class RecipeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_step_list);
 
         Bundle data = getIntent().getExtras();
-        RecipesResponse recipesResponse = data.getParcelable(RECIPE_EXTRA);
+        Recipe recipe = data.getParcelable(RECIPE_EXTRA);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

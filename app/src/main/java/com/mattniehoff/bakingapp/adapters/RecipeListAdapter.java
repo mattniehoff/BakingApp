@@ -9,17 +9,17 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.mattniehoff.bakingapp.R;
-import com.mattniehoff.bakingapp.model.RecipesResponse;
+import com.mattniehoff.bakingapp.model.Recipe;
 
 import java.util.List;
 
 public class RecipeListAdapter extends RecyclerView.Adapter<RecipeListAdapter.ViewHolder> {
     private Context context;
-    private List<RecipesResponse> data;
+    private List<Recipe> data;
     private ListItemClickListener clickListener;
 
     public interface ListItemClickListener {
-        void onListItemClick(RecipesResponse recipesResponse);
+        void onListItemClick(Recipe recipe);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder
@@ -37,12 +37,12 @@ public class RecipeListAdapter extends RecyclerView.Adapter<RecipeListAdapter.Vi
         @Override
         public void onClick(View view) {
             int clickedPosition = getAdapterPosition();
-            RecipesResponse recipesResponse = data.get(clickedPosition);
-            clickListener.onListItemClick(recipesResponse);
+            Recipe recipe = data.get(clickedPosition);
+            clickListener.onListItemClick(recipe);
         }
     }
 
-    public RecipeListAdapter(Context context, List<RecipesResponse> data, ListItemClickListener listener) {
+    public RecipeListAdapter(Context context, List<Recipe> data, ListItemClickListener listener) {
         this.context = context;
         this.data = data;
         this.clickListener = listener;
@@ -60,8 +60,8 @@ public class RecipeListAdapter extends RecyclerView.Adapter<RecipeListAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int position) {
-        RecipesResponse recipesResponse = data.get(position);
-        viewHolder.recipeName.setText(recipesResponse.getName());
+        Recipe recipe = data.get(position);
+        viewHolder.recipeName.setText(recipe.getName());
     }
 
     @Override
@@ -70,7 +70,7 @@ public class RecipeListAdapter extends RecyclerView.Adapter<RecipeListAdapter.Vi
     }
 
     // Provides a way to update the data held in the Adapter post-construction
-    public void updateData(List<RecipesResponse> data) {
+    public void updateData(List<Recipe> data) {
         this.data = data;
         notifyDataSetChanged();
     }

@@ -8,7 +8,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.mattniehoff.bakingapp.R;
 import com.mattniehoff.bakingapp.adapters.RecipeListAdapter;
-import com.mattniehoff.bakingapp.model.RecipesResponse;
+import com.mattniehoff.bakingapp.model.Recipe;
 import com.mattniehoff.bakingapp.network.NetworkUtils;
 import com.mattniehoff.bakingapp.network.RecipesClient;
 
@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity
         recyclerView.setLayoutManager(layoutManager);
 
         // Adapter
-        adapter = new RecipeListAdapter(this, new ArrayList<RecipesResponse>(0), this);
+        adapter = new RecipeListAdapter(this, new ArrayList<Recipe>(0), this);
         recyclerView.setAdapter(adapter);
 
         // Populate RecyclerView
@@ -58,10 +58,10 @@ public class MainActivity extends AppCompatActivity
         RecipesClient client = retrofit.create(RecipesClient.class);
 
         // Make the call -
-        Call<List<RecipesResponse>> call = client.getRecipesList();
-        call.enqueue(new Callback<List<RecipesResponse>>() {
+        Call<List<Recipe>> call = client.getRecipesList();
+        call.enqueue(new Callback<List<Recipe>>() {
             @Override
-            public void onResponse(Call<List<RecipesResponse>> call, Response<List<RecipesResponse>> response) {
+            public void onResponse(Call<List<Recipe>> call, Response<List<Recipe>> response) {
                 if (response.isSuccessful()) {
                     adapter.updateData(response.body());
                 } else {
@@ -71,17 +71,17 @@ public class MainActivity extends AppCompatActivity
             }
 
             @Override
-            public void onFailure(Call<List<RecipesResponse>> call, Throwable t) {
+            public void onFailure(Call<List<Recipe>> call, Throwable t) {
                 //TODO; Log here and probably display something Log.i("flag", "failure");
             }
         });
     }
 
     @Override
-    public void onListItemClick(RecipesResponse recipesResponse) {
+    public void onListItemClick(Recipe recipe) {
         // TODO: Open Start RecipeActivity
         Intent intent = new Intent(this, RecipeActivity.class);
-        intent.putExtra(RecipeActivity.RECIPE_EXTRA, recipesResponse);
+        intent.putExtra(RecipeActivity.RECIPE_EXTRA, recipe);
         startActivity(intent);
     }
 }
