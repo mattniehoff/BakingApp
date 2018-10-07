@@ -17,18 +17,62 @@
     master/detail flow.
     
     -->
-
-    <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/step_list"
-        android:name="com.mattniehoff.bakingapp.activities.StepListFragment"
-        android:layout_width="@dimen/item_width"
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        app:layoutManager="LinearLayoutManager"
-        tools:context="com.mattniehoff.bakingapp.activities.RecipeActivity"
-        tools:listitem="@layout/step_list_content" />
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ingredient_list_title" />
+
+            <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:id="@+id/ingredient_list_recyclerview"
+                android:name="com.mattniehoff.bakingapp.activities.StepListFragment"
+                android:layout_width="@dimen/item_width"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                tools:context="com.mattniehoff.bakingapp.activities.RecipeActivity"
+                tools:listitem="@layout/ingredient_list_item" />
+
+            <!-- https://stackoverflow.com/a/4146280/2107568 for line view -->
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="2dip"
+                android:background="@color/colorPrimary" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/step_list_title" />
+
+            <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:id="@+id/step_list"
+                android:name="com.mattniehoff.bakingapp.activities.StepListFragment"
+                android:layout_width="@dimen/item_width"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                app:layoutManager="LinearLayoutManager"
+                tools:context="com.mattniehoff.bakingapp.activities.RecipeActivity"
+                tools:listitem="@layout/step_list_content" />
+        </LinearLayout>
+    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/step_detail_container"

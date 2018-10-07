@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -14,6 +16,7 @@ import android.widget.TextView;
 
 import com.mattniehoff.bakingapp.R;
 
+import com.mattniehoff.bakingapp.adapters.IngredientListAdapter;
 import com.mattniehoff.bakingapp.fragments.StepDetailFragment;
 import com.mattniehoff.bakingapp.model.Recipe;
 import com.mattniehoff.bakingapp.model.Step;
@@ -71,12 +74,30 @@ public class RecipeActivity extends AppCompatActivity {
             twoPane = true;
         }
 
-        View recyclerView = findViewById(R.id.step_list);
-        assert recyclerView != null;
-        setupRecyclerView((RecyclerView) recyclerView);
+        setupIngredientRecyclerView();
+        setupStepsRecyclerView();
     }
 
-    private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
+    private void setupIngredientRecyclerView() {
+        RecyclerView recyclerView = findViewById(R.id.ingredient_list_recyclerview);
+        assert recyclerView != null;
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+
+        // See https://stackoverflow.com/a/27037230/2107568 for divider decoration
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                layoutManager.getOrientation());
+        recyclerView.addItemDecoration(dividerItemDecoration);
+
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(new IngredientListAdapter(recipe.getIngredients()));
+
+
+    }
+
+    private void setupStepsRecyclerView() {
+        RecyclerView recyclerView = findViewById(R.id.step_list);
+        assert recyclerView != null;
         recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, recipe.getSteps(), twoPane));
     }
 
@@ -118,6 +139,7 @@ public class RecipeActivity extends AppCompatActivity {
             this.twoPane = twoPane;
         }
 
+        @NonNull
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
