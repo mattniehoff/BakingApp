@@ -1,6 +1,7 @@
 package com.mattniehoff.bakingapp.fragments;
 
 import android.app.Activity;
+import android.net.Uri;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,6 +10,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.LoadControl;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.mattniehoff.bakingapp.R;
 import com.mattniehoff.bakingapp.activities.RecipeActivity;
 import com.mattniehoff.bakingapp.activities.StepDetailActivity;
@@ -25,13 +37,16 @@ public class StepDetailFragment extends Fragment {
      * The fragment argument representing the item ID that this fragment
      * represents.
      */
-    //public static final String STEP_ID = "step_id";
     public static final String STEP_ARGUMENT = "step_argument";
 
     /**
      * The step this fragment is displaying information about.
      */
     private Step step;
+
+    private SimpleExoPlayer player;
+    private SimpleExoPlayerView playerView;
+
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -64,8 +79,31 @@ public class StepDetailFragment extends Fragment {
         // Show the step description as text in a TextView.
         if (step != null) {
             ((TextView) rootView.findViewById(R.id.step_detail)).setText(step.getDescription());
+            playerView = (SimpleExoPlayerView) rootView.findViewById(R.id.playerView);
+            initializePlayer(Uri.parse(step.getVideoURL()));
         }
 
         return rootView;
     }
+
+    private void initializePlayer(Uri videoUri) {
+        if (player == null) {
+            // Create an instance of the ExoPlayer.
+            TrackSelector trackSelector = new DefaultTrackSelector();
+            LoadControl loadControl = new DefaultLoadControl();
+            player = ExoPlayerFactory.newSimpleInstance(getActivity(), trackSelector, loadControl);
+            playerView.setPlayer(player);
+
+            // Prepare MediaSource
+
+            MediaSource mediaSource = new ExtractorMediaSource(videoUri, new DefaultDataSourceFactory(
+                    getActivity(), getString(R.string.app_name)), new DefaultExtractorsFactory(), null, null);
+
+
+            player.prepare(mediaSource, true, false);
+            player.setPlayWhenReady(true);
+        }
+    }
+
+
 }
