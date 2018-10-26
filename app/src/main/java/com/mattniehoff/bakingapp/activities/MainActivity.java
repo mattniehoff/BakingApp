@@ -1,11 +1,15 @@
 package com.mattniehoff.bakingapp.activities;
 
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
+import com.mattniehoff.bakingapp.IngredientListWidget;
 import com.mattniehoff.bakingapp.R;
 import com.mattniehoff.bakingapp.adapters.RecipeListAdapter;
 import com.mattniehoff.bakingapp.model.Recipe;
@@ -20,6 +24,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+import static com.mattniehoff.bakingapp.IngredientListWidget.sharedPrefFile;
 
 public class MainActivity extends AppCompatActivity
         implements RecipeListAdapter.ListItemClickListener {
@@ -79,9 +85,30 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onListItemClick(Recipe recipe) {
-        // TODO: Open Start RecipeActivity
+        // when we choose a new recipe, update the widget text.
+        updateWidgetText(recipe);
+
         Intent intent = new Intent(this, RecipeActivity.class);
         intent.putExtra(RecipeActivity.RECIPE_EXTRA, recipe);
         startActivity(intent);
+    }
+
+    private void updateWidgetText(Recipe recipe) {
+
+        SharedPreferences preferences = this.getSharedPreferences(sharedPrefFile, 0);
+
+        SharedPreferences.Editor prefEditor = preferences.edit();
+        prefEditor.putString(IngredientListWidget.RECIPE_KEY, recipe.getName());
+        prefEditor.putString(IngredientListWidget.INGREDIENTS_KEY, recipe.getIngredientsString());
+        prefEditor.apply();
+
+        // See https://stackoverflow.com/a/7738687/2107568 for triggering update
+        Intent intent = new Intent(this, IngredientListWidget.class);
+        intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+
+        int[] ids = AppWidgetManager.getInstance(getApplication())
+                .getAppWidgetIds(new ComponentName(getApplication(), IngredientListWidget.class));
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        sendBroadcast(intent);
     }
 }

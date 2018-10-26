@@ -22,7 +22,7 @@
         <activity
             android:name=".activities.RecipeActivity"
             android:label="@string/title_step_list"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.StepDetailActivity"
             android:label="@string/title_step_detail"
@@ -32,6 +32,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mattniehoff.bakingapp.activities.RecipeActivity" />
         </activity>
+
+        <receiver android:name=".IngredientListWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/ingredient_list_widget_info" />
+        </receiver>
     </application>
 
 </manifest>
