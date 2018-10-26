@@ -3,6 +3,7 @@ package com.mattniehoff.bakingapp;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.widget.RemoteViews;
 
 /**
@@ -10,13 +11,23 @@ import android.widget.RemoteViews;
  */
 public class IngredientListWidget extends AppWidgetProvider {
 
+    public static final String sharedPrefFile = "com.mattniehoff.bakingapp";
+    public static final String RECIPE_KEY = "recipe";
+    public static final String INGREDIENTS_KEY = "ingredients";
+
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
                                 int appWidgetId) {
 
-        CharSequence widgetText = context.getString(R.string.appwidget_text);
+        // Get ingredients from SharedPreferences and update.
+        SharedPreferences preferences = context.getSharedPreferences(sharedPrefFile, 0);
+        String recipeName = preferences.getString(RECIPE_KEY, context.getString(R.string.recipe_name_default));
+        String ingredients = preferences.getString(INGREDIENTS_KEY, context.getString(R.string.ingredients_list_default));
+
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.ingredient_list_widget);
-        views.setTextViewText(R.id.appwidget_text, widgetText);
+        views.setTextViewText(R.id.appwidget_recipe_label, recipeName);
+        views.setTextViewText(R.id.appwidget_ingredients_list, ingredients);
+
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
@@ -28,16 +39,6 @@ public class IngredientListWidget extends AppWidgetProvider {
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId);
         }
-    }
-
-    @Override
-    public void onEnabled(Context context) {
-        // Enter relevant functionality for when the first widget is created
-    }
-
-    @Override
-    public void onDisabled(Context context) {
-        // Enter relevant functionality for when the last widget is disabled
     }
 }
 
