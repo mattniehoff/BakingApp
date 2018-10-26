@@ -1,21 +1,52 @@
+<!-- Used
+https://google-developer-training.gitbooks.io/android-developer-advanced-course-practicals/content/unit-1-expand-the-user-experience/lesson-2-app-widgets/2-1-p-app-widgets/2-1-p-app-widgets.html
+to help with creating widget -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#09C"
     android:padding="@dimen/widget_margin">
 
-    <TextView
-        android:id="@+id/appwidget_text"
-        android:layout_width="wrap_content"
+    <!--<TextView-->
+    <!--android:id="@+id/appwidget_text"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_centerHorizontal="true"-->
+    <!--android:layout_centerVertical="true"-->
+    <!--android:layout_margin="8dp"-->
+    <!--android:background="#09C"-->
+    <!--android:contentDescription="@string/appwidget_text"-->
+    <!--android:text="@string/appwidget_text"-->
+    <!--android:textColor="#ffffff"-->
+    <!--android:textSize="24sp"-->
+    <!--android:textStyle="bold|italic" />-->
+
+    <LinearLayout
+        android:id="@+id/section_id"
+        style="@style/AppWidgetSection"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_margin="8dp"
-        android:background="#09C"
-        android:contentDescription="@string/appwidget_text"
-        android:text="@string/appwidget_text"
-        android:textColor="#ffffff"
-        android:textSize="24sp"
-        android:textStyle="bold|italic" />
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/appwidget_id_label"
+            style="@style/AppWidgetLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="Widget ID" />
+
+        <TextView
+            android:id="@+id/appwidget_id"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="XX"
+            style="@style/AppWidgetText"/>
+
+    </LinearLayout>
 
 </RelativeLayout>
