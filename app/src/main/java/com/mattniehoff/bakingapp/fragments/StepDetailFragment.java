@@ -2,6 +2,7 @@ package com.mattniehoff.bakingapp.fragments;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -77,17 +78,35 @@ public class StepDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(getArguments().containsKey(RECIPE_ARGUMENT)) {
-            recipe = getArguments().getParcelable(RECIPE_ARGUMENT);
-        }
+        if (savedInstanceState == null) {
+            if (getArguments().containsKey(RECIPE_ARGUMENT)) {
+                recipe = getArguments().getParcelable(RECIPE_ARGUMENT);
+            }
 
-        if (getArguments().containsKey(STEP_ARGUMENT)) {
-            stepIndex = getArguments().getInt(STEP_ARGUMENT, 0);
-            setStep(stepIndex);
+            if (getArguments().containsKey(STEP_ARGUMENT)) {
+                stepIndex = getArguments().getInt(STEP_ARGUMENT, 0);
+                setStep(stepIndex);
+            }
+        } else {
+            if (savedInstanceState.containsKey(RECIPE_ARGUMENT)) {
+                recipe = savedInstanceState.getParcelable(RECIPE_ARGUMENT);
+            }
+
+            if (savedInstanceState.containsKey(STEP_ARGUMENT)) {
+                stepIndex = savedInstanceState.getInt(STEP_ARGUMENT, 0);
+                setStep(stepIndex);
+            }
         }
     }
 
-    private void setStep(Integer stepIndex){
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(this.RECIPE_ARGUMENT, recipe);
+        outState.putInt(this.STEP_ARGUMENT, stepIndex);
+    }
+
+    private void setStep(Integer stepIndex) {
         if (stepIndex < recipe.getSteps().size()) {
             currentStep = recipe.getSteps().get(stepIndex);
             onStepChanged();
@@ -100,7 +119,7 @@ public class StepDetailFragment extends Fragment {
     // This method will reinitialize everything in the fragment on a step change.
     private void onStepChanged() {
         // If view isn't initialized, setting media, text, etc. will be on null objects
-        if (isViewInitialized){
+        if (isViewInitialized) {
             updateLayout();
         }
     }
@@ -179,7 +198,6 @@ public class StepDetailFragment extends Fragment {
             }
         });
     }
-
 
 
     private void initializePlayer(String videoUrl) {
