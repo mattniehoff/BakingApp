@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 import com.mattniehoff.bakingapp.IngredientListWidget;
 import com.mattniehoff.bakingapp.R;
@@ -29,6 +30,7 @@ import static com.mattniehoff.bakingapp.IngredientListWidget.sharedPrefFile;
 
 public class MainActivity extends AppCompatActivity
         implements RecipeListAdapter.ListItemClickListener {
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     private RecipeListAdapter adapter;
 
@@ -71,14 +73,13 @@ public class MainActivity extends AppCompatActivity
                 if (response.isSuccessful()) {
                     adapter.updateData(response.body());
                 } else {
-                    // TODO: Add logging
-                    //   Log.e(TAG, response.message());
+                    Log.e(TAG, response.message());
                 }
             }
 
             @Override
             public void onFailure(Call<List<Recipe>> call, Throwable t) {
-                //TODO; Log here and probably display something Log.i("flag", "failure");
+                Log.e(TAG, "Failed in call to recipe list.");
             }
         });
     }

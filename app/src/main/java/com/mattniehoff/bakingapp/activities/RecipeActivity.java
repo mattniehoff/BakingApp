@@ -110,11 +110,12 @@ public class RecipeActivity extends AppCompatActivity {
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Step step = (Step) view.getTag();
+                Integer stepIndex = (Integer) view.getTag();
                 if (twoPane) {
                     // Create fragment
                     Bundle arguments = new Bundle();
-                    arguments.putParcelable(StepDetailFragment.STEP_ARGUMENT, step);
+                    arguments.putInt(StepDetailFragment.STEP_ARGUMENT, stepIndex);
+                    arguments.putParcelable(StepDetailFragment.RECIPE_ARGUMENT, parentActivity.recipe);
                     StepDetailFragment fragment = new StepDetailFragment();
                     fragment.setArguments(arguments);
                     parentActivity.getSupportFragmentManager().beginTransaction()
@@ -124,7 +125,8 @@ public class RecipeActivity extends AppCompatActivity {
                     // Start activity
                     Context context = view.getContext();
                     Intent intent = new Intent(context, StepDetailActivity.class);
-                    intent.putExtra(StepDetailFragment.STEP_ARGUMENT, step);
+                    intent.putExtra(StepDetailFragment.STEP_ARGUMENT, stepIndex);
+                    intent.putExtra(StepDetailFragment.RECIPE_ARGUMENT, parentActivity.recipe);
 
                     context.startActivity(intent);
                 }
@@ -152,7 +154,7 @@ public class RecipeActivity extends AppCompatActivity {
             holder.mIdView.setText(String.valueOf(steps.get(position).getId()));
             holder.mContentView.setText(steps.get(position).getShortDescription());
 
-            holder.itemView.setTag(steps.get(position));
+            holder.itemView.setTag(position);
             holder.itemView.setOnClickListener(mOnClickListener);
         }
 

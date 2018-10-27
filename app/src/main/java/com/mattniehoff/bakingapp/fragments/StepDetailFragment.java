@@ -1,14 +1,15 @@
 package com.mattniehoff.bakingapp.fragments;
 
-import android.app.Activity;
 import android.net.Uri;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -26,6 +27,7 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.mattniehoff.bakingapp.R;
 import com.mattniehoff.bakingapp.activities.RecipeActivity;
 import com.mattniehoff.bakingapp.activities.StepDetailActivity;
+import com.mattniehoff.bakingapp.model.Recipe;
 import com.mattniehoff.bakingapp.model.Step;
 
 /**
@@ -35,20 +37,34 @@ import com.mattniehoff.bakingapp.model.Step;
  * on handsets.
  */
 public class StepDetailFragment extends Fragment {
+    private static final String TAG = StepDetailFragment.class.getSimpleName();
+
     /**
      * The fragment argument representing the item ID that this fragment
      * represents.
      */
     public static final String STEP_ARGUMENT = "step_argument";
+    public static final String RECIPE_ARGUMENT = "recipe_argument";
 
     /**
-     * The step this fragment is displaying information about.
+     * The currentStep this fragment is displaying information about.
      */
-    private Step step;
+    private Recipe recipe;
+    private Step currentStep;
+    private Integer stepIndex;
+
+    private TextView instructionTextView;
 
     private SimpleExoPlayer player;
     private SimpleExoPlayerView playerView;
     private AspectRatioFrameLayout playerFrameLayout;
+
+    // Boolean to track if our View exists.
+    private Boolean isViewInitialized = false;
+
+    // Navigation
+    Button previousButton;
+    Button nextButton;
 
 
     /**
@@ -62,15 +78,24 @@ public class StepDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments().containsKey(STEP_ARGUMENT)) {
-            step = getArguments().getParcelable(STEP_ARGUMENT);
+        if (savedInstanceState == null) {
+            if (getArguments().containsKey(RECIPE_ARGUMENT)) {
+                recipe = getArguments().getParcelable(RECIPE_ARGUMENT);
+            }
 
-            Activity activity = this.getActivity();
+            if (getArguments().containsKey(STEP_ARGUMENT)) {
+                stepIndex = getArguments().getInt(STEP_ARGUMENT, 0);
+                setStep(stepIndex);
+            }
+        } else {
+            if (savedInstanceState.containsKey(RECIPE_ARGUMENT)) {
+                recipe = savedInstanceState.getParcelable(RECIPE_ARGUMENT);
+            }
 
-//            CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
-//            if (appBarLayout != null) {
-//                appBarLayout.setTitle(step.getShortDescription());
-//            }
+            if (savedInstanceState.containsKey(STEP_ARGUMENT)) {
+                stepIndex = savedInstanceState.getInt(STEP_ARGUMENT, 0);
+                setStep(stepIndex);
+            }
         }
     }
 
@@ -79,40 +104,72 @@ public class StepDetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.step_detail, container, false);
 
-        // TODO: Add remaining recipe data: media/navigation
-        // Show the step description as text in a TextView.
-        if (step != null) {
-            ((TextView) rootView.findViewById(R.id.step_detail)).setText(step.getDescription());
-            playerView = rootView.findViewById(R.id.step_player_view);
-
-
-            playerFrameLayout = rootView.findViewById(R.id.step_media_frame_layout);
-            playerFrameLayout.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
-
-            DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-            float aspectRatio;
-            if (displayMetrics.widthPixels > displayMetrics.heightPixels) {
-                aspectRatio = ((float) displayMetrics.widthPixels / (float) displayMetrics.heightPixels);
-            } else {
-                aspectRatio = ((float) displayMetrics.heightPixels / (float) displayMetrics.widthPixels);
-            }
-
-            playerFrameLayout.setAspectRatio(aspectRatio);
-
-            if (step.getVideoURL().equals("")){
-                playerView.setVisibility(View.GONE);
-                playerFrameLayout.setVisibility(View.GONE);
-            } else {
-                playerFrameLayout.setVisibility(View.VISIBLE);
-                playerView.setVisibility(View.VISIBLE);
-                initializePlayer(Uri.parse(step.getVideoURL()));
-            }
+        if (currentStep != null) {
+            instructionTextView = rootView.findViewById(R.id.step_detail);
+            initializeButtons(rootView);
+            initializeMedia(rootView);
+            isViewInitialized = true;
         }
+
+        updateLayout();
 
         return rootView;
     }
 
-    private void initializePlayer(Uri videoUri) {
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(this.RECIPE_ARGUMENT, recipe);
+        outState.putInt(this.STEP_ARGUMENT, stepIndex);
+    }
+
+    private void initializeButtons(View rootView) {
+        previousButton = rootView.findViewById(R.id.step_previous_button);
+        previousButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Decrement step and update layout
+                if (stepIndex != 0) {
+                    stepIndex--;
+                    setStep(stepIndex);
+                }
+            }
+        });
+
+
+        nextButton = rootView.findViewById(R.id.step_next_button);
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (stepIndex < recipe.getSteps().size()) {
+                    stepIndex++;
+                    setStep(stepIndex);
+                }
+            }
+        });
+    }
+
+    private void initializeMedia(View rootView) {
+        playerView = rootView.findViewById(R.id.step_player_view);
+        playerFrameLayout = rootView.findViewById(R.id.step_media_frame_layout);
+        playerFrameLayout.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
+
+        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+        float aspectRatio;
+        if (displayMetrics.widthPixels > displayMetrics.heightPixels) {
+            aspectRatio = ((float) displayMetrics.widthPixels / (float) displayMetrics.heightPixels);
+        } else {
+            aspectRatio = ((float) displayMetrics.heightPixels / (float) displayMetrics.widthPixels);
+        }
+
+        playerFrameLayout.setAspectRatio(aspectRatio);
+    }
+
+    private void initializePlayer(String videoUrl) {
+        Uri videoUri = Uri.parse(videoUrl);
+
+        // Release the player so it is null and recreated.
+        releasePlayer();
         if (player == null) {
             // Create an instance of the ExoPlayer.
             TrackSelector trackSelector = new DefaultTrackSelector();
@@ -131,10 +188,50 @@ public class StepDetailFragment extends Fragment {
     }
 
     private void releasePlayer() {
-        if (player != null){
+        if (player != null) {
             player.stop();
             player.release();
+            player = null;
         }
+    }
+
+    private void setStep(Integer stepIndex) {
+        if (stepIndex < recipe.getSteps().size()) {
+            currentStep = recipe.getSteps().get(stepIndex);
+            onStepChanged();
+        } else {
+            Log.e(TAG, stepIndex + " is out of bounds. Setting to first step.");
+            currentStep = recipe.getSteps().get(0);
+        }
+    }
+
+    private void onStepChanged() {
+        // If view isn't initialized, setting media, text, etc. will be on null objects
+        if (isViewInitialized) {
+            updateLayout();
+        }
+    }
+
+    private void updateLayout() {
+        // Populate the step description.
+        instructionTextView.setText(currentStep.getDescription());
+
+        // Populate media
+        releasePlayer();
+        if (currentStep.getVideoURL().equals("")) {
+            playerView.setVisibility(View.GONE);
+            playerFrameLayout.setVisibility(View.GONE);
+        } else {
+            playerFrameLayout.setVisibility(View.VISIBLE);
+            playerView.setVisibility(View.VISIBLE);
+            initializePlayer(currentStep.getVideoURL());
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        initializePlayer(currentStep.getVideoURL());
     }
 
     @Override
