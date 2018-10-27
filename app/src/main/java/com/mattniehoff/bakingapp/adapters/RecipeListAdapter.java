@@ -24,9 +24,7 @@ public class RecipeListAdapter extends RecyclerView.Adapter<RecipeListAdapter.Vi
 
     class ViewHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
-        // TODO: define more elements as added to the card view
         public TextView recipeName;
-
 
         public ViewHolder(View view) {
             super(view);
