@@ -4,15 +4,50 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/step_detail_constraint_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
 
-        <com.google.android.exoplayer2.ui.SimpleExoPlayerView
-            android:id="@+id/playerView"
+
+        <!--<com.google.android.exoplayer2.ui.SimpleExoPlayerView-->
+            <!--android:id="@+id/playerView"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content" -->
+            <!--app:layout_constraintEnd_toEndOf="parent"-->
+            <!--app:layout_constraintEnd_toStartOf="parent"-->
+            <!--app:layout_constraintBottom_toTopOf="parent"/>-->
+        <!--<FrameLayout-->
+            <!--android:id="@+id/step_media_frame_layout"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--app:layout_constraintEnd_toEndOf="parent"-->
+            <!--app:layout_constraintStart_toStartOf="parent"-->
+            <!--app:layout_constraintTop_toTopOf="parent">-->
+        <com.google.android.exoplayer2.ui.AspectRatioFrameLayout
+            android:id="@+id/step_media_frame_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@color/colorPrimary">
+
+            <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+                android:id="@+id/step_player_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <!-- Start invisible, only show if thumbnail
+            TODO: See if any recipes have thumbnails-->
+            <ImageView
+                android:id="@+id/step_thumbnail"
+                android:visibility="invisible"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </com.google.android.exoplayer2.ui.AspectRatioFrameLayout>
 
         <TextView xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
@@ -22,7 +57,10 @@
             android:layout_height="wrap_content"
             android:padding="16dp"
             android:textIsSelectable="true"
-            tools:context=".fragments.StepDetailFragment" />
+            tools:context=".fragments.StepDetailFragment"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/step_media_frame_layout"/>
 
-    </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
 </ScrollView>
