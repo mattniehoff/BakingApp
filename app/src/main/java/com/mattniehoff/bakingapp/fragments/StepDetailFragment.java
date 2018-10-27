@@ -91,9 +91,9 @@ public class StepDetailFragment extends Fragment {
 
             DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
             float aspectRatio;
-            if(displayMetrics.widthPixels > displayMetrics.heightPixels){
+            if (displayMetrics.widthPixels > displayMetrics.heightPixels) {
                 aspectRatio = ((float) displayMetrics.widthPixels / (float) displayMetrics.heightPixels);
-            }else{
+            } else {
                 aspectRatio = ((float) displayMetrics.heightPixels / (float) displayMetrics.widthPixels);
             }
 
@@ -123,5 +123,22 @@ public class StepDetailFragment extends Fragment {
         }
     }
 
+    private void releasePlayer() {
+        if (player != null){
+            player.stop();
+            player.release();
+        }
+    }
 
+    @Override
+    public void onDestroy() {
+        releasePlayer();
+        super.onDestroy();
+    }
+
+    @Override
+    public void onStop() {
+        releasePlayer();
+        super.onStop();
+    }
 }
