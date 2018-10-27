@@ -9,6 +9,7 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -50,6 +51,10 @@ public class StepDetailFragment extends Fragment {
     private SimpleExoPlayerView playerView;
     private AspectRatioFrameLayout playerFrameLayout;
 
+    // Navigation
+    Button previousButton;
+    Button nextButton;
+
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -83,8 +88,11 @@ public class StepDetailFragment extends Fragment {
         // Show the step description as text in a TextView.
         if (step != null) {
             ((TextView) rootView.findViewById(R.id.step_detail)).setText(step.getDescription());
-            playerView = rootView.findViewById(R.id.step_player_view);
 
+            previousButton = rootView.findViewById(R.id.step_previous_button);
+            nextButton = rootView.findViewById(R.id.step_next_button);
+
+            playerView = rootView.findViewById(R.id.step_player_view);
 
             playerFrameLayout = rootView.findViewById(R.id.step_media_frame_layout);
             playerFrameLayout.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
@@ -99,7 +107,7 @@ public class StepDetailFragment extends Fragment {
 
             playerFrameLayout.setAspectRatio(aspectRatio);
 
-            if (step.getVideoURL().equals("")){
+            if (step.getVideoURL().equals("")) {
                 playerView.setVisibility(View.GONE);
                 playerFrameLayout.setVisibility(View.GONE);
             } else {
@@ -131,7 +139,7 @@ public class StepDetailFragment extends Fragment {
     }
 
     private void releasePlayer() {
-        if (player != null){
+        if (player != null) {
             player.stop();
             player.release();
         }

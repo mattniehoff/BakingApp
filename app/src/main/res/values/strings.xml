@@ -8,4 +8,6 @@
     <string name="add_widget">Add widget</string>
     <string name="recipe_name_default">RECIPE NAME DEFAULT</string>
     <string name="ingredients_list_default">INGREDIENTS LIST DEFAULT</string>
+    <string name="step_previous_button">PREV</string>
+    <string name="step_next_button">NEXT</string>
 </resources>
