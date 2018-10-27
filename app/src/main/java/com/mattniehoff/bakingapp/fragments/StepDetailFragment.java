@@ -99,7 +99,14 @@ public class StepDetailFragment extends Fragment {
 
             playerFrameLayout.setAspectRatio(aspectRatio);
 
-            initializePlayer(Uri.parse(step.getVideoURL()));
+            if (step.getVideoURL().equals("")){
+                playerView.setVisibility(View.GONE);
+                playerFrameLayout.setVisibility(View.GONE);
+            } else {
+                playerFrameLayout.setVisibility(View.VISIBLE);
+                playerView.setVisibility(View.VISIBLE);
+                initializePlayer(Uri.parse(step.getVideoURL()));
+            }
         }
 
         return rootView;
