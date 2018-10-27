@@ -1,6 +1,5 @@
 package com.mattniehoff.bakingapp.fragments;
 
-import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -53,9 +52,14 @@ public class StepDetailFragment extends Fragment {
     private Step currentStep;
     private Integer stepIndex;
 
+    private TextView instructionTextView;
+
     private SimpleExoPlayer player;
     private SimpleExoPlayerView playerView;
     private AspectRatioFrameLayout playerFrameLayout;
+
+    // Boolean to track if our View exists.
+    private Boolean isViewInitialized = false;
 
     // Navigation
     Button previousButton;
@@ -80,22 +84,24 @@ public class StepDetailFragment extends Fragment {
         if (getArguments().containsKey(STEP_ARGUMENT)) {
             stepIndex = getArguments().getInt(STEP_ARGUMENT, 0);
             setStep(stepIndex);
-
-            Activity activity = this.getActivity();
-
-//            CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
-//            if (appBarLayout != null) {
-//                appBarLayout.setTitle(currentStep.getShortDescription());
-//            }
         }
     }
 
     private void setStep(Integer stepIndex){
         if (stepIndex < recipe.getSteps().size()) {
             currentStep = recipe.getSteps().get(stepIndex);
+            onStepChanged();
         } else {
             Log.e(TAG, stepIndex + " is out of bounds. Setting to first step.");
             currentStep = recipe.getSteps().get(0);
+        }
+    }
+
+    // This method will reinitialize everything in the fragment on a step change.
+    private void onStepChanged() {
+        // If view isn't initialized, setting media, text, etc. will be on null objects
+        if (isViewInitialized){
+            updateLayout();
         }
     }
 
@@ -104,36 +110,24 @@ public class StepDetailFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.step_detail, container, false);
 
-        // TODO: Add remaining recipe data: media/navigation
-        // Show the currentStep description as text in a TextView.
         if (currentStep != null) {
-            ((TextView) rootView.findViewById(R.id.step_detail)).setText(currentStep.getDescription());
-
-            previousButton = rootView.findViewById(R.id.step_previous_button);
-            nextButton = rootView.findViewById(R.id.step_next_button);
-
-            playerView = rootView.findViewById(R.id.step_player_view);
-
-            playerFrameLayout = rootView.findViewById(R.id.step_media_frame_layout);
-            playerFrameLayout.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
-
-            DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
-            float aspectRatio;
-            if (displayMetrics.widthPixels > displayMetrics.heightPixels) {
-                aspectRatio = ((float) displayMetrics.widthPixels / (float) displayMetrics.heightPixels);
-            } else {
-                aspectRatio = ((float) displayMetrics.heightPixels / (float) displayMetrics.widthPixels);
-            }
-
-            playerFrameLayout.setAspectRatio(aspectRatio);
-
-            setMedia();
+            instructionTextView = rootView.findViewById(R.id.step_detail);
+            initializeButtons(rootView);
+            initializeMedia(rootView);
+            isViewInitialized = true;
         }
+
+        updateLayout();
 
         return rootView;
     }
 
-    private void setMedia() {
+    private void updateLayout() {
+        // Populate the step description.
+        instructionTextView.setText(currentStep.getDescription());
+
+        // Populate media
+        releasePlayer();
         if (currentStep.getVideoURL().equals("")) {
             playerView.setVisibility(View.GONE);
             playerFrameLayout.setVisibility(View.GONE);
@@ -144,9 +138,56 @@ public class StepDetailFragment extends Fragment {
         }
     }
 
+    private void initializeMedia(View rootView) {
+        playerView = rootView.findViewById(R.id.step_player_view);
+        playerFrameLayout = rootView.findViewById(R.id.step_media_frame_layout);
+        playerFrameLayout.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
+
+        DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
+        float aspectRatio;
+        if (displayMetrics.widthPixels > displayMetrics.heightPixels) {
+            aspectRatio = ((float) displayMetrics.widthPixels / (float) displayMetrics.heightPixels);
+        } else {
+            aspectRatio = ((float) displayMetrics.heightPixels / (float) displayMetrics.widthPixels);
+        }
+
+        playerFrameLayout.setAspectRatio(aspectRatio);
+    }
+
+    private void initializeButtons(View rootView) {
+        previousButton = rootView.findViewById(R.id.step_previous_button);
+        previousButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Decrement step and update layout
+                if (stepIndex != 0) {
+                    stepIndex--;
+                    setStep(stepIndex);
+                }
+            }
+        });
+
+
+        nextButton = rootView.findViewById(R.id.step_next_button);
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (stepIndex < recipe.getSteps().size()) {
+                    stepIndex++;
+                    setStep(stepIndex);
+                }
+            }
+        });
+    }
+
+
+
     private void initializePlayer(String videoUrl) {
+        Uri videoUri = Uri.parse(videoUrl);
+
+        // Release the player so it is null and recreated.
+        releasePlayer();
         if (player == null) {
-            Uri videoUri = Uri.parse(videoUrl);
             // Create an instance of the ExoPlayer.
             TrackSelector trackSelector = new DefaultTrackSelector();
             LoadControl loadControl = new DefaultLoadControl();
@@ -167,6 +208,7 @@ public class StepDetailFragment extends Fragment {
         if (player != null) {
             player.stop();
             player.release();
+            player = null;
         }
     }
 
