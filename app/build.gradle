@@ -37,4 +37,7 @@ dependencies {
     // Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+
+    // Exoplayer (using 2.2.0 to sync with example app)
+    implementation 'com.google.android.exoplayer:exoplayer:r2.2.0'
 }
