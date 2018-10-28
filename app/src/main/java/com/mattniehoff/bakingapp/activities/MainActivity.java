@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity
     @VisibleForTesting
     @NonNull
     public IdlingResource getIdlingResource() {
-        if(idlingResource == null){
+        if (idlingResource == null) {
             idlingResource = new SimpleIdlingResource();
         }
 

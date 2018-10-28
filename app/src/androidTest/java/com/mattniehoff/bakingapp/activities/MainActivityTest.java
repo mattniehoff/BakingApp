@@ -33,7 +33,7 @@ public class MainActivityTest {
     }
 
     @Test
-    public void clickRecipe(){
+    public void clickRecipe() {
         // Press the first recipe in our main activity
         onView(withId(R.id.recipe_list_recyclerview))
                 .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
