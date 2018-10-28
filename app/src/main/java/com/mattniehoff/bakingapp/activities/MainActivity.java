@@ -4,6 +4,10 @@ import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
+import android.support.test.espresso.IdlingResource;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -13,6 +17,7 @@ import android.util.Log;
 import com.mattniehoff.bakingapp.IngredientListWidget;
 import com.mattniehoff.bakingapp.R;
 import com.mattniehoff.bakingapp.adapters.RecipeListAdapter;
+import com.mattniehoff.bakingapp.idlingResource.SimpleIdlingResource;
 import com.mattniehoff.bakingapp.model.Recipe;
 import com.mattniehoff.bakingapp.network.NetworkUtils;
 import com.mattniehoff.bakingapp.network.RecipesClient;
@@ -31,6 +36,9 @@ import static com.mattniehoff.bakingapp.IngredientListWidget.sharedPrefFile;
 public class MainActivity extends AppCompatActivity
         implements RecipeListAdapter.ListItemClickListener {
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    @Nullable
+    private SimpleIdlingResource idlingResource;
 
     private RecipeListAdapter adapter;
 
@@ -111,5 +119,15 @@ public class MainActivity extends AppCompatActivity
                 .getAppWidgetIds(new ComponentName(getApplication(), IngredientListWidget.class));
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
         sendBroadcast(intent);
+    }
+
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getIdlingResource() {
+        if (idlingResource == null) {
+            idlingResource = new SimpleIdlingResource();
+        }
+
+        return idlingResource;
     }
 }
