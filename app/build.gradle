@@ -26,9 +26,20 @@ dependencies {
     implementation 'com.android.support:design:28.0.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
+
+    // Found I needed this reference here: https://forums.bignerdranch.com/t/cannot-resolve-symbol-activitytestrule-solved/14720
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
+
+    // Espresso
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
-    // Recycler View
+    // For RecyclerView actions
+    androidTestImplementation 'com.android.support.test.espresso:espresso-contrib:3.0.2'
+
+    //IdlingResource
+    implementation 'com.android.support.test.espresso:espresso-idling-resource:3.0.2'
+
+    // Recycler View Actions (testing adapted from lynda.com Espresso Essential Training course)
     implementation 'com.android.support:recyclerview-v7:28.0.0'
 
     // Card View
