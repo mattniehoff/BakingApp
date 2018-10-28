@@ -40,4 +40,7 @@ dependencies {
 
     // Exoplayer (using 2.2.0 to sync with example app)
     implementation 'com.google.android.exoplayer:exoplayer:r2.2.0'
+
+    // Picasso
+    implementation 'com.squareup.picasso:picasso:2.71828'
 }
