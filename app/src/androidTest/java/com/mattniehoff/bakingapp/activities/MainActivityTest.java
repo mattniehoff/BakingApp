@@ -8,6 +8,7 @@ import android.support.test.rule.ActivityTestRule;
 
 import com.mattniehoff.bakingapp.R;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,14 +34,43 @@ public class MainActivityTest {
     }
 
     @Test
-    public void clickRecipe() {
-        // Press the first recipe in our main activity
+    public void clickRecipeStep() {
+        //
         onView(withId(R.id.recipe_list_recyclerview))
-                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+            .check(matches(isDisplayed()));
+
+        // Scroll to position
+        onView(withId(R.id.recipe_list_recyclerview))
+                .perform(RecyclerViewActions.scrollToPosition(1));
+
+        // Press the recipe in our main activity
+        onView(withId(R.id.recipe_list_recyclerview))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(1, click()));
 
         // Test that we've gone into an activity that inflates a layout with our
         // ingredients list recyclerview
-        onView(withId(R.id.ingredient_list_recyclerview))
+        onView(withId(R.id.step_list))
+                .check(matches(isDisplayed()));
+
+        // Scroll to second element
+        onView(withId(R.id.step_list))
+                .perform(RecyclerViewActions.scrollToPosition(1));
+
+        // Click
+        onView(withId(R.id.step_list))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(1, click()));
+
+        // Verify we're showing stepdetail
+        onView(withId(R.id.step_detail))
                 .check(matches(isDisplayed()));
     }
+
+    // https://stackoverflow.com/a/44344572/2107568
+    @After
+    public void unregisterIdlingResource() {
+        if (idlingResource != null) {
+            Espresso.unregisterIdlingResources(idlingResource);
+        }
+    }
+
 }
