@@ -39,6 +39,13 @@ public class MainActivityTest {
         onView(withId(R.id.recipe_list_recyclerview))
             .check(matches(isDisplayed()));
 
+        // Per review suggestion, adding a sleep here helps make sure it populates.
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         // Scroll to position
         onView(withId(R.id.recipe_list_recyclerview))
                 .perform(RecyclerViewActions.scrollToPosition(1));
