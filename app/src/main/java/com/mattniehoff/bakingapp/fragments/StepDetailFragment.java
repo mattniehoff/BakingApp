@@ -223,7 +223,6 @@ public class StepDetailFragment extends Fragment {
         // Populate media - Show video, else, show thumbnail, else hide all
         releasePlayer();
         if (!currentStep.getVideoURL().equals("")) {
-            playerFrameLayout.setVisibility(View.VISIBLE);
             playerView.setVisibility(View.VISIBLE);
             initializePlayer(currentStep.getVideoURL());
             thumbnailImageView.setVisibility(View.GONE);
@@ -231,15 +230,15 @@ public class StepDetailFragment extends Fragment {
                 !isMp4Extension(currentStep.getThumbnailURL())) {
             // Remove player view
             playerView.setVisibility(View.GONE);
-            playerFrameLayout.setVisibility(View.GONE);
 
             // Set thumbnail
             Picasso.get().load(currentStep.getThumbnailURL()).into(thumbnailImageView);
             thumbnailImageView.setVisibility(View.VISIBLE);
         } else {
+            // Default to placeholder
             playerView.setVisibility(View.GONE);
-            playerFrameLayout.setVisibility(View.GONE);
-            thumbnailImageView.setVisibility(View.GONE);
+            thumbnailImageView.setImageResource(R.drawable.ic_bread_image);
+            thumbnailImageView.setVisibility(View.VISIBLE);
         }
     }
 
