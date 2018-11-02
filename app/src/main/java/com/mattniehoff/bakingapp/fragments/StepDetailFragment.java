@@ -220,14 +220,15 @@ public class StepDetailFragment extends Fragment {
         // Populate the step description.
         instructionTextView.setText(currentStep.getDescription());
 
-        // Populate media
+        // Populate media - Show video, else, show thumbnail, else hide all
         releasePlayer();
         if (!currentStep.getVideoURL().equals("")) {
             playerFrameLayout.setVisibility(View.VISIBLE);
             playerView.setVisibility(View.VISIBLE);
             initializePlayer(currentStep.getVideoURL());
             thumbnailImageView.setVisibility(View.GONE);
-        } else if (!currentStep.getThumbnailURL().equals("")) {
+        } else if (!currentStep.getThumbnailURL().equals("") &&
+                !isMp4Extension(currentStep.getThumbnailURL())) {
             // Remove player view
             playerView.setVisibility(View.GONE);
             playerFrameLayout.setVisibility(View.GONE);
@@ -240,6 +241,12 @@ public class StepDetailFragment extends Fragment {
             playerFrameLayout.setVisibility(View.GONE);
             thumbnailImageView.setVisibility(View.GONE);
         }
+    }
+
+    // https://stackoverflow.com/a/8955087/2107568
+    private boolean isMp4Extension(String filename) {
+        String extension = filename.substring(filename.lastIndexOf(".") + 1, filename.length());
+        return extension.equals("mp4");
     }
 
     @Override
