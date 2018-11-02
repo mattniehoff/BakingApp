@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -29,6 +30,7 @@ import com.mattniehoff.bakingapp.activities.RecipeActivity;
 import com.mattniehoff.bakingapp.activities.StepDetailActivity;
 import com.mattniehoff.bakingapp.model.Recipe;
 import com.mattniehoff.bakingapp.model.Step;
+import com.squareup.picasso.Picasso;
 
 /**
  * A fragment representing a single Step detail screen.
@@ -58,6 +60,7 @@ public class StepDetailFragment extends Fragment {
     private SimpleExoPlayer player;
     private SimpleExoPlayerView playerView;
     private AspectRatioFrameLayout playerFrameLayout;
+    private ImageView thumbnailImageView;
 
     // Boolean to track if our View exists.
     private Boolean isViewInitialized = false;
@@ -151,6 +154,7 @@ public class StepDetailFragment extends Fragment {
 
     private void initializeMedia(View rootView) {
         playerView = rootView.findViewById(R.id.step_player_view);
+        thumbnailImageView = rootView.findViewById(R.id.step_thumbnail_image_view);
         playerFrameLayout = rootView.findViewById(R.id.step_media_frame_layout);
         playerFrameLayout.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
 
@@ -216,16 +220,32 @@ public class StepDetailFragment extends Fragment {
         // Populate the step description.
         instructionTextView.setText(currentStep.getDescription());
 
-        // Populate media
+        // Populate media - Show video, else, show thumbnail, else hide all
         releasePlayer();
-        if (currentStep.getVideoURL().equals("")) {
-            playerView.setVisibility(View.GONE);
-            playerFrameLayout.setVisibility(View.GONE);
-        } else {
-            playerFrameLayout.setVisibility(View.VISIBLE);
+        if (!currentStep.getVideoURL().equals("")) {
             playerView.setVisibility(View.VISIBLE);
             initializePlayer(currentStep.getVideoURL());
+            thumbnailImageView.setVisibility(View.GONE);
+        } else if (!currentStep.getThumbnailURL().equals("") &&
+                !isMp4Extension(currentStep.getThumbnailURL())) {
+            // Remove player view
+            playerView.setVisibility(View.GONE);
+
+            // Set thumbnail
+            Picasso.get().load(currentStep.getThumbnailURL()).into(thumbnailImageView);
+            thumbnailImageView.setVisibility(View.VISIBLE);
+        } else {
+            // Default to placeholder
+            playerView.setVisibility(View.GONE);
+            thumbnailImageView.setImageResource(R.drawable.ic_bread_image);
+            thumbnailImageView.setVisibility(View.VISIBLE);
         }
+    }
+
+    // https://stackoverflow.com/a/8955087/2107568
+    private boolean isMp4Extension(String filename) {
+        String extension = filename.substring(filename.lastIndexOf(".") + 1, filename.length());
+        return extension.equals("mp4");
     }
 
     @Override
