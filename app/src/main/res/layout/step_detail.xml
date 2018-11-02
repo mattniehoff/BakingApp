@@ -24,10 +24,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
 
-            <!-- Start invisible, only show if thumbnail
-            TODO: See if any recipes have thumbnails-->
+            <!-- Start invisible, only show if thumbnail-->
             <ImageView
-                android:id="@+id/step_thumbnail"
+                android:id="@+id/step_thumbnail_image_view"
                 android:visibility="invisible"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />

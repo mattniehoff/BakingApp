@@ -6,8 +6,8 @@ android {
         applicationId "com.mattniehoff.bakingapp"
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -51,4 +51,8 @@ dependencies {
 
     // Exoplayer (using 2.2.0 to sync with example app)
     implementation 'com.google.android.exoplayer:exoplayer:r2.2.0'
+
+    // Picasso
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
 }

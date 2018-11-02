@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -29,6 +30,7 @@ import com.mattniehoff.bakingapp.activities.RecipeActivity;
 import com.mattniehoff.bakingapp.activities.StepDetailActivity;
 import com.mattniehoff.bakingapp.model.Recipe;
 import com.mattniehoff.bakingapp.model.Step;
+import com.squareup.picasso.Picasso;
 
 /**
  * A fragment representing a single Step detail screen.
@@ -45,6 +47,8 @@ public class StepDetailFragment extends Fragment {
      */
     public static final String STEP_ARGUMENT = "step_argument";
     public static final String RECIPE_ARGUMENT = "recipe_argument";
+    public static final String PLAYER_POSITION = "player_position";
+    public static final String PLAYER_STATE = "player_state";
 
     /**
      * The currentStep this fragment is displaying information about.
@@ -58,9 +62,15 @@ public class StepDetailFragment extends Fragment {
     private SimpleExoPlayer player;
     private SimpleExoPlayerView playerView;
     private AspectRatioFrameLayout playerFrameLayout;
+    private ImageView thumbnailImageView;
 
     // Boolean to track if our View exists.
     private Boolean isViewInitialized = false;
+
+    // Media states when resuming activity
+    private long playerPosition;
+    private boolean playerState;
+    private String videoUri;
 
     // Navigation
     Button previousButton;
@@ -87,6 +97,9 @@ public class StepDetailFragment extends Fragment {
                 stepIndex = getArguments().getInt(STEP_ARGUMENT, 0);
                 setStep(stepIndex);
             }
+
+            playerPosition = 0;
+            playerState = true;
         } else {
             if (savedInstanceState.containsKey(RECIPE_ARGUMENT)) {
                 recipe = savedInstanceState.getParcelable(RECIPE_ARGUMENT);
@@ -95,6 +108,14 @@ public class StepDetailFragment extends Fragment {
             if (savedInstanceState.containsKey(STEP_ARGUMENT)) {
                 stepIndex = savedInstanceState.getInt(STEP_ARGUMENT, 0);
                 setStep(stepIndex);
+            }
+
+            if (savedInstanceState.containsKey(PLAYER_POSITION)) {
+                playerPosition = savedInstanceState.getLong(PLAYER_POSITION, 0L);
+            }
+
+            if (savedInstanceState.containsKey(PLAYER_STATE)) {
+                playerState = savedInstanceState.getBoolean(PLAYER_STATE, false);
             }
         }
     }
@@ -121,6 +142,11 @@ public class StepDetailFragment extends Fragment {
         super.onSaveInstanceState(outState);
         outState.putParcelable(this.RECIPE_ARGUMENT, recipe);
         outState.putInt(this.STEP_ARGUMENT, stepIndex);
+
+        if (player != null) {
+            outState.putLong(PLAYER_POSITION, player.getCurrentPosition());
+            outState.putBoolean(PLAYER_STATE, player.getPlayWhenReady());
+        }
     }
 
     private void initializeButtons(View rootView) {
@@ -131,6 +157,7 @@ public class StepDetailFragment extends Fragment {
                 // Decrement step and update layout
                 if (stepIndex != 0) {
                     stepIndex--;
+                    preservePlayerStateAndSetToStartPosition();
                     setStep(stepIndex);
                 }
             }
@@ -141,16 +168,25 @@ public class StepDetailFragment extends Fragment {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (stepIndex < recipe.getSteps().size()) {
+                if (stepIndex < recipe.getSteps().size() - 1) {
                     stepIndex++;
+                    preservePlayerStateAndSetToStartPosition();
                     setStep(stepIndex);
                 }
             }
         });
     }
 
+    private void preservePlayerStateAndSetToStartPosition() {
+        playerPosition = 0;
+        if (player != null) {
+            playerState = player.getPlayWhenReady();
+        }
+    }
+
     private void initializeMedia(View rootView) {
         playerView = rootView.findViewById(R.id.step_player_view);
+        thumbnailImageView = rootView.findViewById(R.id.step_thumbnail_image_view);
         playerFrameLayout = rootView.findViewById(R.id.step_media_frame_layout);
         playerFrameLayout.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
 
@@ -183,7 +219,10 @@ public class StepDetailFragment extends Fragment {
 
 
             player.prepare(mediaSource, true, false);
-            player.setPlayWhenReady(true);
+
+            // Set state and position
+            player.seekTo(playerPosition);
+            player.setPlayWhenReady(playerState);
         }
     }
 
@@ -198,6 +237,7 @@ public class StepDetailFragment extends Fragment {
     private void setStep(Integer stepIndex) {
         if (stepIndex < recipe.getSteps().size()) {
             currentStep = recipe.getSteps().get(stepIndex);
+            videoUri = currentStep.getVideoURL();
             onStepChanged();
         } else {
             Log.e(TAG, stepIndex + " is out of bounds. Setting to first step.");
@@ -209,6 +249,7 @@ public class StepDetailFragment extends Fragment {
         // If view isn't initialized, setting media, text, etc. will be on null objects
         if (isViewInitialized) {
             updateLayout();
+            initializePlayer(videoUri);
         }
     }
 
@@ -216,22 +257,39 @@ public class StepDetailFragment extends Fragment {
         // Populate the step description.
         instructionTextView.setText(currentStep.getDescription());
 
-        // Populate media
+        // Populate media - Show video, else, show thumbnail, else hide all
         releasePlayer();
-        if (currentStep.getVideoURL().equals("")) {
-            playerView.setVisibility(View.GONE);
-            playerFrameLayout.setVisibility(View.GONE);
-        } else {
-            playerFrameLayout.setVisibility(View.VISIBLE);
+        if (!currentStep.getVideoURL().equals("")) {
             playerView.setVisibility(View.VISIBLE);
-            initializePlayer(currentStep.getVideoURL());
+            videoUri = currentStep.getVideoURL();
+            initializePlayer(videoUri);
+            thumbnailImageView.setVisibility(View.GONE);
+        } else if (!currentStep.getThumbnailURL().equals("") &&
+                !isMp4Extension(currentStep.getThumbnailURL())) {
+            // Remove player view
+            playerView.setVisibility(View.GONE);
+
+            // Set thumbnail
+            Picasso.get().load(currentStep.getThumbnailURL()).into(thumbnailImageView);
+            thumbnailImageView.setVisibility(View.VISIBLE);
+        } else {
+            // Default to placeholder
+            playerView.setVisibility(View.GONE);
+            thumbnailImageView.setImageResource(R.drawable.ic_bread_image);
+            thumbnailImageView.setVisibility(View.VISIBLE);
         }
+    }
+
+    // https://stackoverflow.com/a/8955087/2107568
+    private boolean isMp4Extension(String filename) {
+        String extension = filename.substring(filename.lastIndexOf(".") + 1, filename.length());
+        return extension.equals("mp4");
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        initializePlayer(currentStep.getVideoURL());
+        initializePlayer(videoUri);
     }
 
     @Override
