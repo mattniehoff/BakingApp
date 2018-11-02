@@ -47,6 +47,8 @@ public class StepDetailFragment extends Fragment {
      */
     public static final String STEP_ARGUMENT = "step_argument";
     public static final String RECIPE_ARGUMENT = "recipe_argument";
+    public static final String PLAYER_POSITION = "player_position";
+    public static final String PLAYER_STATE = "player_state";
 
     /**
      * The currentStep this fragment is displaying information about.
@@ -64,6 +66,11 @@ public class StepDetailFragment extends Fragment {
 
     // Boolean to track if our View exists.
     private Boolean isViewInitialized = false;
+
+    // Media states when resuming activity
+    private long playerPosition;
+    private boolean playerState;
+    private String videoUri;
 
     // Navigation
     Button previousButton;
@@ -90,6 +97,9 @@ public class StepDetailFragment extends Fragment {
                 stepIndex = getArguments().getInt(STEP_ARGUMENT, 0);
                 setStep(stepIndex);
             }
+
+            playerPosition = 0;
+            playerState = true;
         } else {
             if (savedInstanceState.containsKey(RECIPE_ARGUMENT)) {
                 recipe = savedInstanceState.getParcelable(RECIPE_ARGUMENT);
@@ -98,6 +108,14 @@ public class StepDetailFragment extends Fragment {
             if (savedInstanceState.containsKey(STEP_ARGUMENT)) {
                 stepIndex = savedInstanceState.getInt(STEP_ARGUMENT, 0);
                 setStep(stepIndex);
+            }
+
+            if (savedInstanceState.containsKey(PLAYER_POSITION)) {
+                playerPosition = savedInstanceState.getLong(PLAYER_POSITION, 0L);
+            }
+
+            if (savedInstanceState.containsKey(PLAYER_STATE)) {
+                playerState = savedInstanceState.getBoolean(PLAYER_STATE, false);
             }
         }
     }
@@ -124,6 +142,11 @@ public class StepDetailFragment extends Fragment {
         super.onSaveInstanceState(outState);
         outState.putParcelable(this.RECIPE_ARGUMENT, recipe);
         outState.putInt(this.STEP_ARGUMENT, stepIndex);
+
+        if (player != null) {
+            outState.putLong(PLAYER_POSITION, player.getCurrentPosition());
+            outState.putBoolean(PLAYER_STATE, player.getPlayWhenReady());
+        }
     }
 
     private void initializeButtons(View rootView) {
@@ -134,6 +157,7 @@ public class StepDetailFragment extends Fragment {
                 // Decrement step and update layout
                 if (stepIndex != 0) {
                     stepIndex--;
+                    preservePlayerStateAndSetToStartPosition();
                     setStep(stepIndex);
                 }
             }
@@ -144,12 +168,20 @@ public class StepDetailFragment extends Fragment {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (stepIndex < recipe.getSteps().size()) {
+                if (stepIndex < recipe.getSteps().size() - 1) {
                     stepIndex++;
+                    preservePlayerStateAndSetToStartPosition();
                     setStep(stepIndex);
                 }
             }
         });
+    }
+
+    private void preservePlayerStateAndSetToStartPosition() {
+        playerPosition = 0;
+        if (player != null) {
+            playerState = player.getPlayWhenReady();
+        }
     }
 
     private void initializeMedia(View rootView) {
@@ -187,7 +219,10 @@ public class StepDetailFragment extends Fragment {
 
 
             player.prepare(mediaSource, true, false);
-            player.setPlayWhenReady(true);
+
+            // Set state and position
+            player.seekTo(playerPosition);
+            player.setPlayWhenReady(playerState);
         }
     }
 
@@ -202,6 +237,7 @@ public class StepDetailFragment extends Fragment {
     private void setStep(Integer stepIndex) {
         if (stepIndex < recipe.getSteps().size()) {
             currentStep = recipe.getSteps().get(stepIndex);
+            videoUri = currentStep.getVideoURL();
             onStepChanged();
         } else {
             Log.e(TAG, stepIndex + " is out of bounds. Setting to first step.");
@@ -213,6 +249,7 @@ public class StepDetailFragment extends Fragment {
         // If view isn't initialized, setting media, text, etc. will be on null objects
         if (isViewInitialized) {
             updateLayout();
+            initializePlayer(videoUri);
         }
     }
 
@@ -224,7 +261,8 @@ public class StepDetailFragment extends Fragment {
         releasePlayer();
         if (!currentStep.getVideoURL().equals("")) {
             playerView.setVisibility(View.VISIBLE);
-            initializePlayer(currentStep.getVideoURL());
+            videoUri = currentStep.getVideoURL();
+            initializePlayer(videoUri);
             thumbnailImageView.setVisibility(View.GONE);
         } else if (!currentStep.getThumbnailURL().equals("") &&
                 !isMp4Extension(currentStep.getThumbnailURL())) {
@@ -251,7 +289,7 @@ public class StepDetailFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        initializePlayer(currentStep.getVideoURL());
+        initializePlayer(videoUri);
     }
 
     @Override
